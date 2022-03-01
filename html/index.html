@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
+        integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Link Shortener</title>
+</head>
+
+<body>
+    <div class="container my-3" style="max-width: 50rem;">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Link Shortener</h1>
+                <div class="card-text">
+                    <div class="input-group my-3 has-validation">
+                        <input type="text" class="form-control"
+                            placeholder="Link to shorten, e.g. https://www.example.com"
+                            aria-label="Link to shorten, e.g. https://www.example.com" aria-describedby="button-shorten"
+                            id="input-link" required>
+                        <div id="input-link-validation-feedback" class="invalid-feedback">
+                            Please enter a valid URL.
+                        </div>
+                    </div>
+                    <div class="input-group my-3 has-validation">
+                        <span class="input-group-text" id="input-alias-text"></span>
+                        <input type="text" class="form-control" id="input-alias" placeholder="Custom alias (Optional)"
+                            aria-describedby="input-alias-text" aria-label="Custom alias (Optional)" id="input-alias">
+                        <div id="input-alias-validation-feedback" class="invalid-feedback">
+                            Please enter alphanumeric characters only.
+                        </div>
+                    </div>
+                    <div class="input-group my-3">
+                        <button class="btn btn-primary" type="button" id="button-shorten">Shorten</button>
+                        <input type="text" class="form-control" id="input-result" placeholder="Result"
+                            aria-describedby="input-result-text" aria-label="Result" readonly
+                            style="background-color: transparent;">
+                        <button class="btn btn-outline-secondary" type="button" id="button-copy">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <div id="clipboard-no-link-toast" class="toast align-items-center" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Please create a link first.
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <div id="clipboard-toast" class="toast align-items-center" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Link copied to clipboard.
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        const prefix = `${protocol}//${hostname}/`;
+
+        const inputLink = document.getElementById("input-link");
+        const inputAlias = document.getElementById("input-alias");
+        const inputAliasText = document.getElementById("input-alias-text");
+        const inputAliasValidationFeedback = document.getElementById("input-alias-validation-feedback");
+        const buttonShorten = document.getElementById("button-shorten");
+        const inputResult = document.getElementById("input-result");
+        const buttonCopy = document.getElementById("button-copy");
+        const clipboardNoLinkToast = document.getElementById("clipboard-no-link-toast");
+        const clipboardToast = document.getElementById("clipboard-toast");
+
+        inputAliasText.innerText = prefix;
+
+        buttonShorten.addEventListener("click", () => {
+            const url = inputLink.value;
+            const alias = inputAlias.value;
+
+            let urlIsValid = true;
+            let aliasIsValid = true;
+            if (!validateURL(url)) {
+                inputLink.classList.add("is-invalid");
+                urlIsValid = false;
+            } else {
+                inputLink.classList.remove("is-invalid");
+            }
+            if (alias !== "" && !validateAlias(alias)) {
+                inputAliasValidationFeedback.innerText = "Please enter alphanumeric characters only.";
+                inputAlias.classList.add("is-invalid");
+                aliasIsValid = false;
+            } else {
+                inputAliasValidationFeedback.innerText = "";
+                inputAlias.classList.remove("is-invalid");
+            }
+            if (!urlIsValid || !aliasIsValid) {
+                return;
+            }
+
+            const resultPromise = (alias !== "") ? shorten(url, alias) : shorten(url);
+            resultPromise.then(result => {
+                switch (result.status) {
+                    case 200: {
+                        const alias = result.body;
+                        inputResult.value = `${prefix}${alias}`;
+                        break;
+                    }
+                    case 401: {
+                        inputResult.value = "Your session has expired. Please try logging in again.";
+                        location = "/signin/";
+                        break;
+                    }
+                    case 409: {
+                        inputAliasValidationFeedback.innerText = "Alias is taken. Please try a different one.";
+                        inputAlias.classList.add("is-invalid");
+                        inputResult.value = "";
+                        break;
+                    }
+                    case 503: {
+                        inputResult.value = "Service unavailable.";
+                        break;
+                    }
+                    case 400:
+                    default: {
+                        inputResult.value = "Unknown error.";
+                        break;
+                    }
+                }
+            });
+        });
+
+        buttonCopy.addEventListener("click", () => {
+            if (inputResult.value === "") {
+                const toast = new bootstrap.Toast(clipboardNoLinkToast);
+                toast.show();
+            } else {
+                const blob = new Blob([inputResult.value], { type: "text/plain" });
+                const data = [new ClipboardItem({ "text/plain": blob })];
+                navigator.clipboard.write(data).then(() => {
+                    const toast = new bootstrap.Toast(clipboardToast);
+                    toast.show();
+                }).catch(err => {
+                    alert("Could not write to clipboard.");
+                });
+            }
+        });
+
+        async function shorten(url, alias) {
+            const params = new URLSearchParams();
+            params.set("url", url);
+            if (alias !== undefined) {
+                params.set("alias", alias);
+            }
+            const response = await fetch("/", {
+                method: "POST",
+                body: params,
+            });
+            const text = await response.text();
+            const result = {
+                status: response.status,
+                body: text,
+            };
+            return result;
+        }
+
+        function validateURL(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function validateAlias(alias) {
+            const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            return [].every.call(alias, char => BASE62.indexOf(char) !== -1);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-pax4MlgXjHEPfCwcJLQhigY7+N8rt6bVvWLFyUMuxShv170X53TRzGPmPkZmGBhk+jikR8WBM4yl7A9WMHHqvg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
+        integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Sign In | Link Shortener</title>
+</head>
+
+<body>
+    <div class="container my-3" style="max-width: 50rem;">
+        <ul class="nav nav-tabs" id="main-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="sign-in-tab" data-bs-toggle="tab" data-bs-target="#sign-in-div"
+                    type="button" role="tab" aria-controls="sign-in-div" aria-selected="true">Sign in</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sign-up-tab" data-bs-toggle="tab" data-bs-target="#sign-up-div"
+                    type="button" role="tab" aria-controls="sign-up-div" aria-selected="false">Sign up</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="main-tab-content">
+            <div class="tab-pane fade show active" id="sign-in-div" role="tabpanel" aria-labelledby="sign-in-tab">
+                <div class="my-3">
+                    <h1 class="card-title"> Sign in </h1>
+                    <form id="form-sign-in" action="/" method="post" class="needs-validation" novalidate>
+                        <div class="input-group my-3 has-validation">
+                            <span class="input-group-text" style="width: 6rem;">Username</span>
+                            <input type="text" class="form-control" id="input-sign-in-username" name="username"
+                                placeholder="" required>
+                            <div class="invalid-feedback">
+                                Please provide a username.
+                            </div>
+                        </div>
+                        <div class="input-group my-3 has-validation">
+                            <span class="input-group-text" style="width: 6rem;">Password</span>
+                            <input type="password" class="form-control" id="input-sign-in-password" name="password"
+                                placeholder="" required>
+                            <div class="invalid-feedback">
+                                Please provide a password.
+                            </div>
+                        </div>
+                        <input type="hidden" name="html" value="">
+                        <div class="my-3">
+                            <button type="submit" class="btn btn-primary" id="button-sign-in">Sign in</button>
+                            <span class="mx-2"> Your information will be kept securely. </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="sign-up-div" role="tabpanel" aria-labelledby="sign-up-tab">
+                <div class="my-3">
+                    <h1 class="card-title"> Sign up </h1>
+                    <form id="form-sign-up" action="/" method="post" class="needs-validation" novalidate>
+                        <div class="input-group my-3 has-validation">
+                            <span class="input-group-text" style="width: 6rem;">Username</span>
+                            <input type="text" class="form-control" id="input-sign-up-username" name="username"
+                                placeholder="" required disabled>
+                            <div class="invalid-feedback">
+                                Please provide a username.
+                            </div>
+                        </div>
+                        <div class="input-group my-3 has-validation">
+                            <span class="input-group-text" style="width: 6rem;">Password</span>
+                            <input type="password" class="form-control" id="input-sign-up-password" name="password"
+                                placeholder="" required disabled>
+                            <div class="invalid-feedback">
+                                Please provide a password.
+                            </div>
+                        </div>
+                        <div class="my-3">
+                            <button type="submit" class="btn btn-primary" id="button-sign-up" disabled>Sign up</button>
+                            <span class="mx-2">Account registration is currently unavailable.</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <div id="sign-up-success-toast" class="toast align-items-center" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    You have successfully registered.
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <div id="sign-up-username-exists-toast" class="toast align-items-center" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    User already exists. Please sign in or try using a different username.
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3">
+        <div id="sign-up-unknown-error-toast" class="toast align-items-center" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Unknown error.
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const AUTH = "";  // URL of auth page
+
+        const formSignIn = document.getElementById("form-sign-in");
+        const inputSignInUsername = document.getElementById("input-sign-in-username");
+        const inputSignInPassword = document.getElementById("input-sign-in-password");
+        const formSignUp = document.getElementById("form-sign-up");
+        const inputSignUpUsername = document.getElementById("input-sign-up-username");
+        const inputSignUpPassword = document.getElementById("input-sign-up-password");
+        const signUpSuccessToast = document.getElementById("sign-up-success-toast");
+        const signUpUsernameExistsToast = document.getElementById("sign-up-username-exists-toast");
+        const signUpUnknownErrorToast = document.getElementById("sign-up-unknown-error-toast");
+
+        formSignIn.addEventListener("submit", e => {
+            const username = inputSignInUsername.value;
+            const password = inputSignInPassword.value;
+            let usernameIsNonEmpty = true;
+            let passwordIsNonEmpty = true;
+            if (username === "") {
+                inputSignInUsername.classList.add("is-invalid");
+                usernameIsNonEmpty = false;
+            } else {
+                inputSignInUsername.classList.remove("is-invalid");
+            }
+            if (password === "") {
+                inputSignInPassword.classList.add("is-invalid");
+                passwordIsNonEmpty = false;
+            } else {
+                inputSignInPassword.classList.remove("is-invalid");
+            }
+            if (!usernameIsNonEmpty || !passwordIsNonEmpty) {
+                e.preventDefault();
+                return;
+            }
+        });
+
+        formSignUp.addEventListener("submit", async e => {
+            const username = inputSignUpUsername.value;
+            const password = inputSignUpPassword.value;
+            let usernameIsNonEmpty = true;
+            let passwordIsNonEmpty = true;
+            if (username === "") {
+                inputSignUpUsername.classList.add("is-invalid");
+                usernameIsNonEmpty = false;
+            } else {
+                inputSignUpUsername.classList.remove("is-invalid");
+            }
+            if (password === "") {
+                inputSignUpPassword.classList.add("is-invalid");
+                passwordIsNonEmpty = false;
+            } else {
+                inputSignUpPassword.classList.remove("is-invalid");
+            }
+            if (!usernameIsNonEmpty || !passwordIsNonEmpty) {
+                e.preventDefault();
+                return;
+            }
+
+            e.preventDefault();
+            const params = new URLSearchParams();
+            params.set("request_type", "new_user");
+            params.set("username", username);
+            params.set("password", password);
+            const response = await fetch(AUTH, {
+                method: "POST",
+                body: params,
+            });
+            const text = await response.text();
+            switch (response.status) {
+                case 200: {
+                    const toast = new bootstrap.Toast(signUpSuccessToast);
+                    toast.show();
+                    break;
+                }
+                case 406: {
+                    const toast = new bootstrap.Toast(signUpUsernameExistsToast);
+                    toast.show();
+                    break;
+                }
+                case 400:
+                default: {
+                    const toast = new bootstrap.Toast(signUpUnknownErrorToast);
+                    toast.show();
+                    break;
+                }
+            }
+            inputSignUpPassword.value = "";
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-pax4MlgXjHEPfCwcJLQhigY7+N8rt6bVvWLFyUMuxShv170X53TRzGPmPkZmGBhk+jikR8WBM4yl7A9WMHHqvg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>
