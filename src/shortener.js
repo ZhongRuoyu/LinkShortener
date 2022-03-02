@@ -13,7 +13,17 @@ addEventListener("fetch", event => {
 
 async function handleRequest(request) {
     const url = new URL(request.url);
-    const { pathname } = url;
+    const { pathname, protocol } = url;
+
+    if (protocol !== "https:") {
+        url.protocol = "https:";
+        return new Response(null, {
+            status: 301,
+            headers: {
+                Location: url,
+            },
+        });
+    }
 
     switch (request.method) {
         case "GET": {
