@@ -47,7 +47,7 @@ To deploy, install Wrangler first. To install with `npm`:
 npm i @cloudflare/wrangler -g
 ```
 
-Other installatin instructions for Wrangler can be found [here](https://developers.cloudflare.com/workers/cli-wrangler/install-update/).
+Other installation instructions for Wrangler can be found [here](https://developers.cloudflare.com/workers/cli-wrangler/install-update/).
 
 After having Wrangler installed, authenticate yourself following the instructions [here](https://developers.cloudflare.com/workers/cli-wrangler/authentication/).
 
@@ -61,6 +61,8 @@ wrangler kv:namespace create "AUTH"
 wrangler kv:namespace create "SESSIONS"
 wrangler kv:namespace create "PAGES"
 ```
+
+(Note that if you already have a [WebAuth](https://github.com/ZhongRuoyu/WebAuth) namespace, you may skip creating the KV namespaces `AUTH` and `SESSIONS`, and instead directly put their IDs into `wrangler.toml`.)
 
 For each namespace created, put its configuration into [`wrangler.toml`](wrangler.toml), as displayed.
 
