@@ -8,7 +8,7 @@ LinkShortener can handle both browser access and direct API calls.
 
 For browser access, authorization is session-based; each successful login is assigned a session ID, which expires in 30 minutes or on password change.
 
-For API calls, authorization is password-based. Credentials need to be sent as the message body in the HTML form format (`application/x-www-form-urlencoded`).
+For API calls, authorization is password-based. Credentials need to be sent as the message body. For more details, see section [API Usage](#api-usage) below.
 
 LinkShortener works only under HTTPS to ensure security. It automatically redirects non-HTTPS requests (typically HTTP) to HTTPS.
 
@@ -23,7 +23,9 @@ Accessing LinkShortener via API calls requires the following parameters:
 | `url`      | The URL to be shortened.                                                                             |
 | `alias`    | (Optional) The alias (path) of the shortened URL. If not supplied, a random alias will be generated. |
 
-A caller may expect one of the following responses:
+Requests are to be sent with HTTP `POST` method, with the parameters above as the body in the HTML form format (`application/x-www-form-urlencoded`).
+
+One of the following responses can be expected:
 
 | Response status code      | Body                           | Description                                                                                               |
 | ------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
@@ -47,7 +49,7 @@ npm i @cloudflare/wrangler -g
 
 Other installatin instructions for Wrangler can be found [here](https://developers.cloudflare.com/workers/cli-wrangler/install-update/).
 
-After having Wrangler installed, authenticate yourself. Instructions are available [here](https://developers.cloudflare.com/workers/cli-wrangler/authentication/).
+After having Wrangler installed, authenticate yourself following the instructions [here](https://developers.cloudflare.com/workers/cli-wrangler/authentication/).
 
 ### Configuring KV Namespaces
 
@@ -84,13 +86,11 @@ For more information about Wrangler, please visit [Cloudflare Docs](https://deve
 
 ## About Authentication
 
-LinkShortener has shared some code from [WebAuth](https://github.com/ZhongRuoyu/WebAuth) for its authentication. It adds an 8-byte salt to the password before hashing it with SHA-512 and storing it into the database, which ensures that the passwords can be kept securely enough. On password change, to ensure security, WebAuth would invalidate all the existing sessions.
+LinkShortener has shared some code with [WebAuth](https://github.com/ZhongRuoyu/WebAuth) for its authentication. It adds an 8-byte salt to the password before hashing it with SHA-512 and storing it into the database, which ensures that the passwords can be kept securely enough. On password change, to ensure security, WebAuth would invalidate all the existing sessions.
 
 Sharing code with WebAuth also means that the same credentials can be shared across different services, if the same namespace and authentication method is used.
 
-Due to Cloudflare's [restrictions](https://developers.cloudflare.com/workers/runtime-apis/fetch/), however, it is currently not possible to send fetch requests from one Worker to another Worker within the same zone. Therefore, it is not currently feasible to deploy WebAuth, and call it from here, in order to enable account registration and other functionalities. This is the reason why 
-
-A workaround would be to incorporate the required functionalities into this Worker.
+Due to Cloudflare's [restrictions](https://developers.cloudflare.com/workers/runtime-apis/fetch/), however, it is currently not possible to send fetch requests from one Worker to another Worker within the same zone. Therefore, it is not currently feasible to deploy WebAuth, and call it from here, in order to enable account registration and other functionalities. This is the reason why the account registration functionality is left disabled in the demo. A workaround for this would be to incorporate the required functionalities into this Worker.
 
 ## License
 
