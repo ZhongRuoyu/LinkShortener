@@ -1,0 +1,19 @@
+name = "link-shortener"
+type = "javascript"
+
+# This field specifies that the Worker will be deployed to a *.workers.dev domain.
+workers_dev = true
+# -- OR --
+# These fields specify that the Worker will deploy to a custom domain.
+# zone_id = "your-zone-id"
+# routes = ["example.com/*"]
+
+
+# You need to configure these 4 KV namespaces before publishing.
+# The pages need to be put into the PAGES namespace, each with their filename as the key.
+kv_namespaces = [
+    { binding = "STORAGE", id = "" },
+    { binding = "AUTH", id = "" },
+    { binding = "SESSIONS", id = "" },
+    { binding = "PAGES", id = "" }
+]
