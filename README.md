@@ -65,10 +65,9 @@ For each namespace created, put its configuration into [`wrangler.toml`](wrangle
 Then, put the required pages into the `PAGES` KV namespace:
 
 ```bash
-wrangler kv:key put --binding=PAGES "index.html" "$(cat demo/index.html)"
-wrangler kv:key put --binding=PAGES "signin.html" "$(cat demo/signin.html)"
-wrangler kv:key put --binding=PAGES "401.html" "$(cat demo/401.html)"
-wrangler kv:key put --binding=PAGES "404.html" "$(cat demo/404.html)"
+for filename in demo/*.html; do
+    wrangler kv:key put --binding=PAGES $filename "$(cat $filename)"
+done
 ```
 
 ### Publishing the Worker
