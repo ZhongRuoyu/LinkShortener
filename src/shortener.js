@@ -18,7 +18,7 @@ async function handleRequest(request) {
     if (protocol !== "https:") {
         url.protocol = "https:";
         return new Response(null, {
-            status: 301,
+            status: 307,
             headers: {
                 Location: url,
             },
