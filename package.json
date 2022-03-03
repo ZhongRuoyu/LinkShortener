@@ -1,0 +1,5 @@
+{
+    "name": "link-shortener",
+    "description": "A simple authorization-based URL shortener.",
+    "main": "src/shortener.js"
+}
