@@ -95,17 +95,7 @@ async function newRedirection(params) {
             return errConflict();
         }
     } else {
-        getHash:
-        for (let length = 2; length <= 6; ++length) {
-            for (let i = 0; i < 3; ++i) {
-                const hashTry = await hashURL(url, length);
-                const existing = await STORAGE.get(hashTry);
-                if (existing === null) {
-                    alias = hashTry;
-                    break getHash;
-                }
-            }
-        }
+        alias = await getAlias();
     }
     if (alias === null) {
         return errServiceUnavailable();
@@ -207,16 +197,23 @@ function validateAlias(alias) {
     return [].every.call(alias, char => BASE62.indexOf(char) !== -1);
 }
 
-async function hashURL(url, length) {
-    const urlUint8 = new TextEncoder().encode(url);
-    let urlUint = urlUint8.reduceRight((prev, curr) => prev * 256n + BigInt(curr), 0n);
-    urlUint += BigInt(Math.floor(Math.random() * 65536));
+function generateAlias(length) {
     let result = "";
-    while (urlUint != 0n) {
-        result = BASE62[urlUint % 62n] + result;
-        urlUint /= 62n;
+    for (let i = 0; i < length; i++) {
+        result += BASE62.charAt(Math.floor(Math.random() * BASE62.length));
     }
-    return result.slice(-length);
+    return result;
+}
+
+async function getAlias() {
+    for (let length = 3; length <= 8; ++length) {
+        const alias = generateAlias(length);
+        const existing = await STORAGE.get(alias);
+        if (existing === null) {
+            return alias;
+        }
+    }
+    return null;
 }
 
 
