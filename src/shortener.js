@@ -245,7 +245,7 @@ async function htmlMain(sessionId) {
     return new Response(html, {
         headers: {
             "Content-Type": "text/html; charset=UTF-8",
-            "Set-Cookie": `session=${sessionId}`,
+            "Set-Cookie": `session=${sessionId}; Secure; HttpOnly`,
         },
     });
 }
